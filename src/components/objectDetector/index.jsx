@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import '@tensorflow/tfjs-backend-cpu'
-import '@tensorflow/tfjs-backend-webgl'
+// import '@tensorflow/tfjs-backend-webgl'
 import * as cocoSsd from '@tensorflow-models/coco-ssd'
 
 const ObjectDetectorContainer = styled.div`
@@ -77,6 +77,7 @@ export function ObjectDetector(props) {
   const imageRef = useRef()
   const [imgData, setImgData] = useState(null)
   const [predictions, setPredictions] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const isEmptyPredictions = !predictions || predictions.length === 0
 
@@ -123,6 +124,8 @@ export function ObjectDetector(props) {
   }
 
   const onSelectImage = async (e) => {
+    setPredictions([]);
+    setIsLoading(true)
     const file = e.target.files[0]
     const imgData = await readImage(file)
     setImgData(imgData)
@@ -133,6 +136,7 @@ export function ObjectDetector(props) {
     imageElement.onload = async () => {
       const imgSize = { width: imageElement.width, height: imageElement.height }
       await detectObjectsOnImage(imageElement, imgSize)
+      setIsLoading(false)
     }
   }
 
@@ -158,7 +162,7 @@ export function ObjectDetector(props) {
         ref={fileInputRef}
         onChange={onSelectImage}
       />
-      <SelectButton onClick={openFilePicker}>Select Image</SelectButton>
+      <SelectButton onClick={openFilePicker}>{isLoading ? "Recognize Image...":" Select Image" }</SelectButton>
     </ObjectDetectorContainer>
   )
 }
